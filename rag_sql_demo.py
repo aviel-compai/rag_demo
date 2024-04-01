@@ -9,6 +9,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
 
+
 # Load the .env file
 load_dotenv()
 
@@ -29,10 +30,11 @@ execute_query_step = generate_query.assign(result=itemgetter("query") | execute_
 
 # Step 3: Answer the user question
 answer_prompt = PromptTemplate.from_template(
-    """Given the following user question, corresponding SQL query, and SQL result, answer the user question.
+    """Given the following user question, chat history, corresponding SQL query, and SQL result, answer the user question.
     Main communication langauge is Hebrew.
 
 Question: {question}
+History: {history}
 SQL Query: {query}
 SQL Result: {result}
 Answer: """
@@ -40,21 +42,19 @@ Answer: """
 chain = execute_query_step | answer_prompt | llm | StrOutputParser()
 
 
-def invoke_chain(user_question):
+
+def invoke_chain(user_question, history):
     # Generate the SQL query
-    query = generate_query.invoke({"question": user_question})
+    print(generate_query.invoke({"question": user_question})["query"])
 
     # Get the response
-    response = chain.invoke({"question": user_question})
+    response = chain.invoke({"question": user_question, "history": history})
 
     # Return both the query and the response
-    return query["query"], response
+    return response
 
 
-demo = gr.Interface(
-    fn=invoke_chain,
-    inputs=gr.Textbox(lines=2, label="שאלת משתמש", placeholder="הקלד שאלה", rtl=True),
-    outputs=[gr.Textbox(label="SQL Query"), gr.Textbox(label="Response", rtl=True)],
-    title="צ'אטבוט משלוחים - LOGISTEAM"
-)
-demo.launch()
+demo = gr.ChatInterface(fn=invoke_chain, title="צ'אטבוט דאטה",
+                        chatbot=gr.Chatbot(rtl=True),
+                        textbox=gr.Textbox(label="שאלת משתמש", placeholder="הקלד שאלה", rtl=True))
+demo.launch(share=True)
