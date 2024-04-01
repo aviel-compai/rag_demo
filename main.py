@@ -8,6 +8,13 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_text_splitters import CharacterTextSplitter
 
+
+# TODO: 1. implement ragas for evaluation: https://docs.ragas.io/en/latest/howtos/integrations/langchain.html
+# TODO: 2. implement from langchain.chains import RetrievalQA
+# TODO: 3. implement from langchain.indexes import VectorstoreIndexCreator
+# TODO: 4. implement gradio
+# TODO: 5. implement load from pdf
+
 # Load the .env file
 load_dotenv()
 
